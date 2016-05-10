@@ -42,6 +42,7 @@ func main() {
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error connecting to websocket: ", err)
 			conn.Close()
+			continue
 		}
 		go copyClose(conn, ws)
 		go copyClose(ws, conn)
