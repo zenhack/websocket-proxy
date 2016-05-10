@@ -8,7 +8,7 @@ Usage:
 
     websocket-proxy -listen :9000 -url wss://example.com/my-websocket
 
-(The listen argument defaults to `:8080`, shown above mostly for
+(The listen argument defaults to `:8080`, it is shown above mostly for
 illustrative purposes).
 
 License:
