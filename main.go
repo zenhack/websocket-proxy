@@ -14,6 +14,11 @@ var (
 	url    = flag.String("url", "", "websocket url to connect to")
 )
 
+func copyClose(w io.Writer, r io.ReadCloser) {
+	io.Copy(w, r)
+	r.Close()
+}
+
 func main() {
 	flag.Parse()
 	if *url == "" {
@@ -30,15 +35,15 @@ func main() {
 	for {
 		conn, err := ln.Accept()
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error in accept: ", err)
+			fmt.Fprintln(os.Stderr, "Error in accept: ", err)
 			continue
 		}
 		ws, err := websocket.Dial(*url, "", "http://localhost/")
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "Error connecting to websocket: ", err)
+			fmt.Fprintln(os.Stderr, "Error connecting to websocket: ", err)
 			conn.Close()
 		}
-		go io.Copy(conn, ws)
-		go io.Copy(ws, conn)
+		go copyClose(conn, ws)
+		go copyClose(ws, conn)
 	}
 }
