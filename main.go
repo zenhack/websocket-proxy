@@ -6,12 +6,14 @@ import (
 	"golang.org/x/net/websocket"
 	"io"
 	"net"
+	"net/url"
 	"os"
 )
 
 var (
-	listen = flag.String("listen", ":8080", "Local address to listen on")
-	url    = flag.String("url", "", "websocket url to connect to")
+	listen   = flag.String("listen", ":8080", "Local address to listen on")
+	rawUrl   = flag.String("url", "", "websocket url to connect to")
+	protocol = flag.String("protocol", "", "Value of Sec-WebSocket-Protocol")
 )
 
 func copyClose(w io.Writer, r io.ReadCloser) {
@@ -21,8 +23,13 @@ func copyClose(w io.Writer, r io.ReadCloser) {
 
 func main() {
 	flag.Parse()
-	if *url == "" {
+	if *rawUrl == "" {
 		fmt.Println("Please provide a websocket url (via -url).")
+		os.Exit(1)
+	}
+	parsedUrl, err := url.Parse(*rawUrl)
+	if err != nil {
+		fmt.Println("Invalid URL: ", err)
 		os.Exit(1)
 	}
 
@@ -38,7 +45,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, "Error in accept: ", err)
 			continue
 		}
-		ws, err := websocket.Dial(*url, "", "http://localhost/")
+		ws, err := websocket.Dial(*rawUrl, *protocol, parsedUrl.Host)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error connecting to websocket: ", err)
 			conn.Close()
