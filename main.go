@@ -45,7 +45,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, "Error in accept: ", err)
 			continue
 		}
-		ws, err := websocket.Dial(*rawUrl, *protocol, parsedUrl.Host)
+		ws, err := websocket.Dial(*rawUrl, *protocol, parsedUrl.Scheme+"://"+parsedUrl.Host)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Error connecting to websocket: ", err)
 			conn.Close()
