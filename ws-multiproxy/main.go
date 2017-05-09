@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"flag"
+	"fmt"
 	"golang.org/x/net/websocket"
 	"io"
 	"log"
@@ -17,9 +17,6 @@ var (
 	laddr  = flag.String("laddr", ":1080", "Address to listen on")
 	config = flag.String("config", os.Getenv("HOME")+"/.ws-multi-cfg.json",
 		"Path to config file.")
-
-	ProtocolNotSupported = errors.New("Protocol not supported (tcp only)")
-	EndpointNotFound     = errors.New("Endpoint not found")
 )
 
 type Config struct {
@@ -54,11 +51,11 @@ func (c *Config) ReadFrom(r io.Reader) (int64, error) {
 
 func (c *Config) Dial(net, addr string) (net.Conn, error) {
 	if net != "tcp" {
-		return nil, ProtocolNotSupported
+		return nil, fmt.Errorf("Protocol %s not supported (tcp only)", net)
 	}
 	endpoint, ok := c.Endpoints[addr]
 	if !ok {
-		return nil, EndpointNotFound
+		return nil, fmt.Errorf("Endpoint not found: %q", addr)
 	}
 	return websocket.Dial(endpoint.Url, endpoint.Protocol, endpoint.Origin)
 }
